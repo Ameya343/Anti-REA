@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anti-rea"
+version = "0.1.0"
+description = "Threat-informed anti-reverse-engineering hardening toolkit (defense against AI-assisted RE such as REA)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Ameya" }]
+keywords = ["reverse-engineering", "hardening", "obfuscation", "appsec", "rasp"]
+# Runtime uses only the Python standard library on purpose: the hardener should
+# not itself pull a large, hard-to-audit dependency tree into your build.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "flake8>=6"]
+
+[project.scripts]
+antirea = "antirea.cli:main"
+
+[tool.setuptools]
+packages = ["antirea", "antirea.analyzers", "antirea.hardeners"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,16 @@
+{
+  "name": "acme-pro",
+  "version": "1.0.0",
+  "description": "Acme Pro desktop app (sample target for Anti-REA)",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "build": {
+    "appId": "com.acme.pro"
+  }
+}
