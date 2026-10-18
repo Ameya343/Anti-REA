@@ -119,7 +119,7 @@ def analyze_binary(path: str, data: bytes) -> FileSignals:
     for m in debug_markers:
         if m in data:
             sig.symbol_hits += 50
-            sig.notes.append(f"debug/symbol marker present: {m.decode('ascii','ignore')}")
+            sig.notes.append(f"debug/symbol marker present: {m.decode('ascii', 'ignore')}")
     if _entropy(data[: 1 << 16]) < 6.0:
         sig.notes.append("low entropy header: not packed/encrypted (easy static load)")
     return sig
