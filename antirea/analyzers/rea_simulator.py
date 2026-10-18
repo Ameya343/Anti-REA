@@ -19,6 +19,8 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 
+from .. import fastscan
+from ..rules import guess_language
 from .signals import FileSignals, analyze_file
 
 # Directories that are never shipped / not worth scanning.
@@ -80,20 +82,42 @@ class AppReport:
 def scan_tree(root: str) -> AppReport:
     root = os.path.abspath(root)
     report = AppReport(root=root)
+
+    # Gather candidate paths.
+    paths: list[str] = []
     if os.path.isfile(root):
-        sig = analyze_file(root)
-        if sig:
-            report.root = os.path.dirname(root) or root
-            report.add(sig)
-        return report
-    for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
-        for fn in filenames:
-            if fn.endswith(".map"):
-                # Count the map itself as a severe leak and keep scanning.
-                continue
-            path = os.path.join(dirpath, fn)
-            sig = analyze_file(path)
+        report.root = os.path.dirname(root) or root
+        paths = [root]
+    else:
+        for dirpath, dirnames, filenames in os.walk(root):
+            dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
+            for fn in filenames:
+                if fn.endswith(".map"):
+                    # Counted as a severe leak elsewhere; never scanned itself.
+                    continue
+                paths.append(os.path.join(dirpath, fn))
+
+    # Split into text files (Rust-accelerated when available) and binaries
+    # (handled in Python); unknown types are skipped, as analyze_file would.
+    text_items: list[tuple[str, str]] = []
+    for p in paths:
+        lang = guess_language(p)
+        if lang is None:
+            continue
+        if lang == "binary":
+            sig = analyze_file(p)
             if sig:
                 report.add(sig)
+        else:
+            text_items.append((p, lang))
+
+    results = fastscan.scan_paths_fast(text_items)
+    if results is None:
+        for p, _lang in text_items:          # pure-Python fallback
+            sig = analyze_file(p)
+            if sig:
+                report.add(sig)
+    else:
+        for sig in results:
+            report.add(sig)
     return report

@@ -1,0 +1,22 @@
+[package]
+name = "antirea-core"
+version = "0.1.0"
+edition = "2021"
+description = "Fast parallel signal-extraction core for Anti-REA (optional accelerator)."
+license = "MIT"
+
+[[bin]]
+name = "antirea-core"
+path = "src/main.rs"
+
+[dependencies]
+regex = "1.11.1"
+rayon = "1.10.0"
+serde = { version = "1.0.210", features = ["derive"] }
+serde_json = "1.0.128"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

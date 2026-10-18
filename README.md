@@ -77,6 +77,17 @@ Runtime has **no third-party dependencies** (standard library only), so the
 hardener doesn't drag a large unaudited tree into your build. `node` is used, if
 present, only to verify JS comment-stripping is safe.
 
+### Optional: Rust acceleration
+
+A small Rust core (`core/`) scans files in parallel and is used automatically
+when built — scanning is ~4–5× faster on large trees, with **byte-for-byte
+identical** results (enforced by `tests/test_rust_parity.py`). It's entirely
+optional; without it the pure-Python scanner runs unchanged.
+
+```bash
+cargo build --release --manifest-path core/Cargo.toml   # enables the fast path
+```
+
 ## Quickstart
 
 ```bash

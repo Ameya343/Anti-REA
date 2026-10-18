@@ -6,6 +6,10 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+
+# Rust core build artifacts
+core/target/
+target/
 .venv/
 venv/
 
