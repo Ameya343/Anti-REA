@@ -55,7 +55,7 @@ static SECRET_RULES: LazyLock<Vec<(&'static str, Regex, u8)>> = LazyLock::new(||
          Regex::new(concat!(
             r#"(?i)(?:^|[^A-Za-z])(api[_-]?key|secret|passwd|password|token|"#,
             r#"auth[_-]?token|client[_-]?secret|signing[_-]?secret)"#,
-            r#"\s*[:=]\s*['"][^'"]{8,}['"]"#)).unwrap(), 2),
+            r#"['"]?\s*[:=]\s*['"][^'"]{8,}['"]"#)).unwrap(), 2),
         ("bearer_literal", Regex::new(r"(?i)bearer\s+[A-Za-z0-9._\-]{20,}").unwrap(), 2),
         ("high_entropy_hex", Regex::new(r#"['"][0-9a-fA-F]{32,}['"]"#).unwrap(), 1),
     ]
