@@ -6,7 +6,11 @@ activate, and when the trial expires. It talks to the licensing backend.
 
 import hashlib
 
-# NOTE: fake, well-known placeholder credentials for demo/testing only.
+# --- SYNTHETIC DEMO DATA — NOT REAL CREDENTIALS -----------------------------
+# These are intentional, well-known fakes that exist only so Anti-REA's scanner
+# has something to detect. AKIAIOSFODNN7EXAMPLE is AWS's public documentation
+# example key (allowlisted by secret scanners); SIGNING_SECRET is a placeholder;
+# *.example.com is a reserved example domain (RFC 2606). Nothing here is live.
 LICENSE_API = "https://api.acme.example.com/v2/license/validate"
 TELEMETRY_ENDPOINT = "https://telemetry.acme.example.com/ingest"
 AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
