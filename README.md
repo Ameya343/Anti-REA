@@ -1,5 +1,7 @@
 # Anti-REA
 
+[![CI](https://github.com/Ameya343/Anti-REA/actions/workflows/ci.yml/badge.svg)](https://github.com/Ameya343/Anti-REA/actions/workflows/ci.yml)
+
 **A threat-informed toolkit for hardening your own apps against reverse
 engineering — including AI-assisted RE platforms like REA.**
 
@@ -126,8 +128,8 @@ copy so you can compare REA's recovered evidence before vs after. Anti-REA does
 
 ```bash
 pip install -e ".[dev]"
-pytest          # 29 tests: hardener + renamer correctness, signals, scoring, platforms
-flake8 antirea
+pytest          # hardener + renamer correctness, signals, scoring, platforms, gate
+flake8 antirea  # config in setup.cfg; lint on Python 3.12 (see CONTRIBUTING.md)
 ```
 
 ## Scope
