@@ -34,6 +34,10 @@ def _cmd_score(args) -> int:
     else:
         print(f"reversibility {scores['reversibility']}/100  |  "
               f"resistance {scores['resistance']}/100  |  grade {scores['grade']}")
+    if args.min_resistance is not None and scores["resistance"] < args.min_resistance:
+        print(f"FAIL: resistance {scores['resistance']} is below the required "
+              f"{args.min_resistance}", file=sys.stderr)
+        return 1
     return 0
 
 
@@ -161,6 +165,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("score", help="print reversibility/resistance scores")
     sp.add_argument("path")
     sp.add_argument("--json", action="store_true")
+    sp.add_argument("--min-resistance", type=float, default=None, metavar="N",
+                    help="exit non-zero if resistance is below N (CI release gate)")
     sp.set_defaults(func=_cmd_score)
 
     sp = sub.add_parser("detect", help="detect which platform(s) a target targets")

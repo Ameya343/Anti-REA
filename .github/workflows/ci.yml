@@ -32,3 +32,8 @@ jobs:
 
       - name: Anti-REA self-demo (informational)
         run: python -m antirea test-rea examples/sample-app
+
+      - name: Anti-REA resistance gate (hardened sample must clear 55)
+        run: |
+          python -m antirea harden examples/sample-app /tmp/hardened --no-rescore
+          python -m antirea score /tmp/hardened --min-resistance 55
