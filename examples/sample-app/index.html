@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Acme Pro</title>
+<style>
+  :root {
+    --bg: #f5f6fb; --panel: #ffffff; --ink: #1c2230; --muted: #6b7280;
+    --line: #e6e8f0; --accent: #4f46e5; --accent-2: #6d28d9;
+    --ok: #16a34a; --lock: #9aa3b2; --trial: #b45309; --trial-bg: #fff7ed;
+    --shadow: 0 10px 30px rgba(28,34,48,.08);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); }
+  /* fake app title bar */
+  .titlebar { height: 36px; background: #0f1220; color: #c7cbe0; display: flex;
+    align-items: center; padding: 0 12px; font-size: 12.5px; gap: 8px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .title { margin-left: 10px; letter-spacing:.2px; opacity:.9 }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 26px 22px 36px; }
+  header { display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff; font-weight: 700; display: grid; place-items: center; font-size: 20px; }
+  .brand h1 { font-size: 20px; margin: 0; }
+  .brand p { margin: 0; color: var(--muted); font-size: 12.5px; }
+  .badge { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .badge.trial { background: var(--trial-bg); color: var(--trial); border:1px solid #fed7aa; }
+  .badge.pro { background: #ecfdf5; color: var(--ok); border:1px solid #bbf7d0; }
+  .trialbar { display: none; background: var(--trial-bg); border:1px solid #fed7aa;
+    color: var(--trial); padding: 11px 14px; border-radius: 12px; font-size: 13.5px;
+    margin-bottom: 18px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 18px; margin-bottom: 16px; }
+  .card h2 { margin: 0 0 4px; font-size: 15px; }
+  .card .sub { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; }
+  .license { display: flex; gap: 10px; }
+  .license input { flex: 1; padding: 11px 13px; border: 1px solid var(--line);
+    border-radius: 10px; font-size: 14px; letter-spacing: 1px; color: var(--ink); background:#fbfbfe; }
+  .btn { border: 0; border-radius: 10px; padding: 11px 18px; font-size: 14px;
+    font-weight: 600; color: #fff; background: var(--accent); cursor: pointer; white-space: nowrap; }
+  .btn[disabled] { opacity:.75; cursor: default; }
+  .spinner { width:14px;height:14px;border:2px solid rgba(255,255,255,.5);
+    border-top-color:#fff;border-radius:50%;display:inline-block;vertical-align:-2px;margin-right:7px;
+    animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .licensed { display:none; color: var(--ok); font-weight:600; font-size:14px; align-items:center; gap:8px; }
+  .feat { display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 4px; border-bottom: 1px solid var(--line); }
+  .feat:last-child { border-bottom: 0; }
+  .feat .name { display:flex; align-items:center; gap:11px; font-size:14px; }
+  .ic { width: 30px; height: 30px; border-radius: 8px; display:grid; place-items:center;
+    background:#f1f2f8; font-size: 16px; }
+  .status { font-size: 12.5px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
+  .status.locked { background:#f3f4f6; color: var(--lock); }
+  .status.on { background:#ecfdf5; color: var(--ok); }
+  .feat.locked .name { color: var(--muted); }
+  footer { display:flex; align-items:center; justify-content:space-between;
+    color: var(--muted); font-size: 12px; margin-top: 6px; padding: 0 4px; }
+  .tele { display:flex; align-items:center; gap:8px; }
+  .tdot { width:8px;height:8px;border-radius:50%; background: var(--ok); }
+
+  /* state: pro */
+  body.pro .badge.trial { display:none; }
+  body.trial .badge.pro, body.activating .badge.pro { display:none; }
+  body.trial .trialbar, body.activating .trialbar { display:block; }
+  body.pro .license { display:none; }
+  body.pro .licensed { display:flex; }
+  body.pro .feat.locked .status.locked { display:none; }
+  body.pro .feat .status.locked { display:none; }
+  body.pro .feat .status.on { display:inline-block; }
+  body:not(.pro) .feat .status.on { display:none; }
+  body:not(.pro) .feat .status.locked { display:inline-block; }
+  body:not(.pro) .feat .ic.l { filter:grayscale(1); }
+</style>
+</head>
+<body class="trial">
+  <div class="titlebar">
+    <span class="dot" style="background:#ff5f57"></span>
+    <span class="dot" style="background:#febc2e"></span>
+    <span class="dot" style="background:#28c840"></span>
+    <span class="title">Acme Pro</span>
+  </div>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">A</div>
+        <div><h1>Acme Pro</h1><p>Desktop workspace</p></div>
+      </div>
+      <span class="badge trial">TRIAL</span>
+      <span class="badge pro">PRO</span>
+    </header>
+
+    <div class="trialbar">⏳ Trial — <b>9 days left</b>. Activate a license to unlock premium features.</div>
+
+    <div class="card">
+      <h2>License</h2>
+      <p class="sub">Enter your key to validate with the licensing server.</p>
+      <div class="license">
+        <input value="ACME-XXXX-XXXX-7Q2K" spellcheck="false" />
+        <button class="btn" id="activate">Activate</button>
+      </div>
+      <div class="licensed">✓ Licensed to Ameya — Pro plan (5 devices)</div>
+    </div>
+
+    <div class="card">
+      <h2>Premium features</h2>
+      <p class="sub">Unlocked based on your subscription tier.</p>
+      <div class="feat locked" data-f="advanced_export">
+        <div class="name"><span class="ic l">⬇️</span> Advanced export</div>
+        <span class="status locked">🔒 Upgrade to unlock</span>
+        <span class="status on">✓ Enabled</span>
+      </div>
+      <div class="feat locked" data-f="team_sharing">
+        <div class="name"><span class="ic l">👥</span> Team sharing</div>
+        <span class="status locked">🔒 Upgrade to unlock</span>
+        <span class="status on">✓ Enabled</span>
+      </div>
+      <div class="feat locked" data-f="priority_render">
+        <div class="name"><span class="ic l">⚡</span> Priority render</div>
+        <span class="status locked">🔒 Upgrade to unlock</span>
+        <span class="status on">✓ Enabled</span>
+      </div>
+    </div>
+
+    <footer>
+      <span class="tele"><span class="tdot"></span> Telemetry on · api.acme.example.com</span>
+      <span>v1.0.0</span>
+    </footer>
+  </div>
+
+  <script>
+    // State is chosen by ?state=trial|activating|pro so the UI can be captured
+    // in each state. In the real app these transitions are driven by the
+    // license:validate / features:unlock IPC channels in app.js.
+    const state = new URLSearchParams(location.search).get("state") || "trial";
+    document.body.className = state;
+    const btn = document.getElementById("activate");
+    if (state === "activating") {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Validating…';
+    }
+  </script>
+</body>
+</html>
