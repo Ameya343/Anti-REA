@@ -1,0 +1,29 @@
+Anti-REA
+Copyright (c) 2026 Ameya
+Licensed under the MIT License (see LICENSE).
+
+This project is a defensive hardening toolkit. It does NOT include, bundle, or
+redistribute the source code of any third-party reverse-engineering tool.
+
+------------------------------------------------------------------------------
+Acknowledgements — third-party tools used for VALIDATION ONLY
+------------------------------------------------------------------------------
+
+REA  —  https://github.com/morluto/rea   (npm: rea-agents)
+    MIT License, Copyright (c) 2026 morluto.
+    Used solely as an external analysis tool to validate Anti-REA's hardening
+    (see docs/validation.md). No REA source code is contained in, or
+    distributed by, this repository.
+
+javascript-obfuscator  —  https://github.com/javascript-obfuscator/javascript-obfuscator
+    MIT License.
+    Invoked at build time in the validation demo to harden the sample app.
+    Not bundled or redistributed here.
+
+------------------------------------------------------------------------------
+
+These tools were executed as external programs. Listing them here is a
+courtesy. Under their MIT licenses, attribution is required only when their
+source code (or substantial portions of it) is copied or redistributed — which
+this repository does not do. If any such code is ever vendored in the future,
+its copyright notice and license text must be preserved alongside it.
