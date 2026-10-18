@@ -154,6 +154,12 @@ Anti-REA is strictly defensive: it hardens software **you own or are authorized
 to protect**. It does not reverse engineer, deobfuscate, or bypass protections
 on anyone else's software.
 
+## Acknowledgements
+
+Anti-REA was validated against [REA](https://github.com/morluto/rea) (MIT,
+© 2026 morluto), used only as an external tool — no REA code is included here.
+See [NOTICE](NOTICE) for third-party tool attributions.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
