@@ -87,8 +87,17 @@ INLINE_SOURCEMAP_RE = re.compile(r"sourceMappingURL=data:application/json")
 IDENT_RE = re.compile(r"[A-Za-z_$][A-Za-z0-9_$]*")
 VOWEL_RE = re.compile(r"[aeiouAEIOU]")
 
-# string literals (greedy-safe, non-multiline for scoring purposes)
-STRING_RE = re.compile(r"\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`")
+# String literals. Triple-quoted forms come first so their multi-line contents
+# are recognized as ONE string instead of leaking words into identifier counts
+# (e.g. a Python docstring must not be scored as code). Then single-line single/
+# double-quoted strings (which do not span newlines), then JS template literals.
+STRING_RE = re.compile(
+    r'"""[\s\S]*?"""'
+    r"|'''[\s\S]*?'''"
+    r'|"(?:\\.|[^"\\\n])*"'
+    r"|'(?:\\.|[^'\\\n])*'"
+    r"|`(?:\\.|[^`\\])*`"
+)
 
 # Minimal keyword set so we don't count language keywords as "meaningful names".
 KEYWORDS = set("""
