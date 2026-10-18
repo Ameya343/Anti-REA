@@ -39,6 +39,16 @@ LANG_BY_EXT = {
     ".swift": "swift",
     ".css": "css",
     ".scss": "css",
+    # Config / data files: scanned for leaked secrets, endpoints and strings.
+    # (They have no "code", but are a common home for API keys and URLs.)
+    ".json": "json",
+    ".jsonc": "json",
+    ".yaml": "yaml",
+    ".yml": "yaml",
+    ".toml": "toml",
+    ".ini": "ini",
+    ".cfg": "ini",
+    ".properties": "properties",
 }
 
 # Treated as compiled/binary artifacts: we look for symbol/debug leakage.
@@ -65,7 +75,7 @@ SECRET_RULES = [
     ("generic_secret_assignment",
      re.compile(r"(?i)(?<![A-Za-z])(api[_-]?key|secret|passwd|password|token|"
                 r"auth[_-]?token|client[_-]?secret|signing[_-]?secret)(?![A-Za-z])"
-                r"\s*[:=]\s*['\"][^'\"]{8,}['\"]"), 2),
+                r"['\"]?\s*[:=]\s*['\"][^'\"]{8,}['\"]"), 2),
     ("bearer_literal", re.compile(r"(?i)bearer\s+[A-Za-z0-9._\-]{20,}"), 2),
     ("high_entropy_hex",
      re.compile(r"['\"][0-9a-fA-F]{32,}['\"]"), 1),
