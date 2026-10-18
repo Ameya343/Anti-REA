@@ -33,6 +33,18 @@ project is — **web, Electron, Android, iOS, native (C/C++/Rust/Go), and
 Python** — and the toolkit tailors its hardening and generated configs to
 whatever it finds (a project is often several at once).
 
+## Proven against the real REA tool
+
+A sample Electron app was hardened with Anti-REA, then the **actual REA
+reverse-engineering tool** (`rea-agents` v6.5.0) was run against the original and
+hardened builds. REA recovered the endpoints, IPC channels, gating logic and
+source comments from the original — and **none** of them from the hardened
+build, while its own count of unresolved nodes rose 8×.
+
+![Anti-REA vs REA — silent demo](docs/validation-demo.gif)
+
+Full methodology, data tables, and honest caveats: **[docs/validation.md](docs/validation.md)**.
+
 ## What it does
 
 | Signal REA harvests | Anti-REA response |
