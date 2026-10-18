@@ -25,7 +25,7 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Lint (flake8)
-        run: flake8 --max-line-length=100 --extend-ignore=E203,W503 antirea
+        run: flake8 antirea   # config in setup.cfg (keeps local == CI)
 
       - name: Test (pytest)
         run: pytest -q
