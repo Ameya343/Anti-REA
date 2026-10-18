@@ -60,13 +60,28 @@ def _node_available() -> bool:
     return shutil.which("node") is not None
 
 
-def _node_checks(path: str) -> bool:
+_JSCHECK = os.path.join(os.path.dirname(__file__), "jscheck.mjs")
+
+
+def _node_batch_check(paths: list[str]) -> set[str]:
+    """Return the subset of `paths` whose JS fails to parse, verified in ONE
+    node process (not one spawn per file). On any launch failure, treat all as
+    failing so the caller reverts to the safe (un-comment-stripped) output."""
+    if not paths:
+        return set()
+    payload = "\0".join(paths).encode("utf-8")
     try:
-        r = subprocess.run(["node", "--check", path], capture_output=True,
-                           timeout=20)
-        return r.returncode == 0
+        r = subprocess.run(
+            ["node", "--experimental-vm-modules", _JSCHECK],
+            input=payload, capture_output=True,
+            timeout=60 + len(paths) // 50,
+        )
     except (OSError, subprocess.SubprocessError):
-        return False
+        return set(paths)
+    if r.returncode != 0:
+        return set(paths)
+    failed = r.stdout.decode("utf-8", "replace").splitlines()
+    return {p for p in failed if p}
 
 
 def harden_tree(src: str, dst: str, *, strip_js_comments: bool = True,
@@ -82,6 +97,10 @@ def harden_tree(src: str, dst: str, *, strip_js_comments: bool = True,
     if strip_js_comments and not node_ok and not force_comments:
         man.notes.append("Node not found: JS comment stripping disabled "
                          "(source-map stripping still applied). Use --force-comments to override.")
+    want_comments = strip_js_comments and (node_ok or force_comments)
+    # (dst_path, safe_fallback_text, counted) for node-checkable files awaiting
+    # a single batched syntax verification after the walk.
+    pending: list[tuple[str, str, bool]] = []
 
     for dirpath, dirnames, filenames in os.walk(src):
         dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
@@ -113,20 +132,36 @@ def harden_tree(src: str, dst: str, *, strip_js_comments: bool = True,
                 continue
 
             if ext in _C_LIKE_EXT:
-                _harden_c_like(s, d, ext, man, node_ok, strip_js_comments,
-                               force_comments)
+                _harden_c_like(s, d, ext, man, node_ok, want_comments,
+                               force_comments, pending)
                 continue
 
             # everything else: copy byte-for-byte
             shutil.copy2(s, d)
             man.copied += 1
 
+    # One batched syntax check for every node-verifiable file, then revert any
+    # that the comment stripper broke to their safe (sourcemap-only) form.
+    failed = _node_batch_check([p for p, _, _ in pending])
+    for d, fallback, counted in pending:
+        if d in failed:
+            with open(d, "w", encoding="utf-8", newline="") as fh:
+                fh.write(fallback)
+            man.reverted += 1
+            if counted:
+                man.comments_stripped_files -= 1
+
     return man
 
 
+def _write(path: str, text: str) -> None:
+    with open(path, "w", encoding="utf-8", newline="") as fh:
+        fh.write(text)
+
+
 def _harden_c_like(s: str, d: str, ext: str, man: HardenManifest,
-                   node_ok: bool, strip_js_comments: bool,
-                   force_comments: bool) -> None:
+                   node_ok: bool, want_comments: bool, force_comments: bool,
+                   pending: list) -> None:
     try:
         with open(s, "r", encoding="utf-8", errors="replace") as fh:
             text = fh.read()
@@ -135,28 +170,26 @@ def _harden_c_like(s: str, d: str, ext: str, man: HardenManifest,
         man.copied += 1
         return
 
-    text, n_sm = textfx.strip_sourcemaps(text)
+    base, n_sm = textfx.strip_sourcemaps(text)   # always-safe transform
     man.sourcemaps_stripped += n_sm
 
-    want_comments = strip_js_comments and (node_ok or force_comments)
-    if want_comments:
-        stripped, n_c = textfx.strip_c_comments(text)
-        # verify when we can (js/mjs/cjs + node); else trust only under --force
-        safe = True
-        if ext in _NODE_CHECKABLE and node_ok:
-            with open(d, "w", encoding="utf-8", newline="") as fh:
-                fh.write(stripped)
-            if not _node_checks(d):
-                safe = False
-                man.reverted += 1
-        elif not force_comments:
-            safe = False  # unverifiable (e.g. .ts) and not forced
-        if safe:
-            with open(d, "w", encoding="utf-8", newline="") as fh:
-                fh.write(stripped)
-            if n_c:
-                man.comments_stripped_files += 1
-            return
+    if not want_comments:
+        _write(d, base)
+        return
 
-    with open(d, "w", encoding="utf-8", newline="") as fh:
-        fh.write(text)
+    stripped, n_c = textfx.strip_c_comments(base)
+    if ext in _NODE_CHECKABLE and node_ok:
+        # write optimistically; a single batched node check verifies later and
+        # reverts to `base` on failure.
+        _write(d, stripped)
+        if n_c:
+            man.comments_stripped_files += 1
+        pending.append((d, base, n_c > 0))
+    elif force_comments:
+        # unverifiable (e.g. .ts) but explicitly forced: trust the stripper
+        _write(d, stripped)
+        if n_c:
+            man.comments_stripped_files += 1
+    else:
+        # unverifiable and not forced: keep comments (sourcemap strip only)
+        _write(d, base)

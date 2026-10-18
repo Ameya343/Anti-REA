@@ -24,5 +24,8 @@ antirea = "antirea.cli:main"
 [tool.setuptools]
 packages = ["antirea", "antirea.analyzers", "antirea.hardeners"]
 
+[tool.setuptools.package-data]
+"antirea.hardeners" = ["*.mjs"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
