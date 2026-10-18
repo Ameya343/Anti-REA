@@ -1,0 +1,8 @@
+{
+  "name": "anti-rea",
+  "version": "0.1.0",
+  "description": "Harden your own apps (including AI-generated ones) against reverse engineering and AI-assisted RE platforms such as REA. Scans for leaked signals, strips them, and emits platform hardening configs.",
+  "author": { "name": "Ameya" },
+  "keywords": ["security", "hardening", "anti-reverse-engineering", "obfuscation", "appsec"],
+  "skills": ["./skills/anti-rea"]
+}

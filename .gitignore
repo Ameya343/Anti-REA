@@ -1,0 +1,20 @@
+# Anti-REA
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Never commit the RE platform archive or any hardened output copies
+rea-main.zip
+*-hardened/
+hardening-configs/
+
+# Source maps must never be shipped/committed...
+*.map
+# ...except the deliberately-leaky sample fixture used by the tests/demo.
+!examples/sample-app/src/app.js.map

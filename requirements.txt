@@ -1,0 +1,4 @@
+# Anti-REA runtime has NO third-party dependencies (standard library only).
+# These are development/test tools:
+pytest>=7
+flake8>=6
