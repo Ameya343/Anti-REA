@@ -19,6 +19,20 @@ features.
 This is REA's **static** JavaScript pass. Hardening raises the cost of reverse
 engineering; it does not make it impossible. See *Honest scope* below.
 
+## The app under test (GUI)
+
+The sample is a small Electron app, "Acme Pro", with a license-activation screen
+and three premium features gated by subscription tier:
+
+![Acme Pro GUI — silent demo](app-gui-demo.gif)
+
+The reverse-engineering experiment targeted this app's **logic** — `app.js`'s
+`license:validate` / `features:unlock` IPC channels, the backend endpoints, and
+the gating code. The GUI above is its front end (`examples/sample-app/index.html`).
+Note the GUI itself still displays feature names and the telemetry endpoint in
+plaintext — a reminder that obfuscating the client only raises cost, and that the
+real control is enforcing entitlements server-side.
+
 ## Setup
 
 | | |

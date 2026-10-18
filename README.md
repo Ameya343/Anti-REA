@@ -43,6 +43,10 @@ build, while its own count of unresolved nodes rose 8×.
 
 ![Anti-REA vs REA — silent demo](docs/validation-demo.gif)
 
+The app under test — a small Electron "Acme Pro" license/feature UI (silent):
+
+![Acme Pro GUI — silent demo](docs/app-gui-demo.gif)
+
 Full methodology, data tables, and honest caveats: **[docs/validation.md](docs/validation.md)**.
 
 ## What it does
