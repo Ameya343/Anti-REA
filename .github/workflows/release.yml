@@ -20,6 +20,9 @@ jobs:
   build:
     strategy:
       fail-fast: false
+      # Serial so the parallel jobs don't race on concurrent release-asset
+      # uploads (which can drop an asset). Releases are infrequent; serial is fine.
+      max-parallel: 1
       matrix:
         include:
           - os: ubuntu-latest
