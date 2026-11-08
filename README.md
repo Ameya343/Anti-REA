@@ -85,8 +85,14 @@ identical** results (enforced by `tests/test_rust_parity.py`). It's entirely
 optional; without it the pure-Python scanner runs unchanged.
 
 ```bash
-cargo build --release --manifest-path core/Cargo.toml   # enables the fast path
+antirea install-core                                    # download a prebuilt binary (no Rust needed)
+# or build from source:
+cargo build --release --manifest-path core/Cargo.toml
 ```
+
+Prebuilt binaries for Linux/macOS/Windows are published on each release; the
+Python side downloads the right one into a per-user cache and uses it
+automatically.
 
 ## Quickstart
 

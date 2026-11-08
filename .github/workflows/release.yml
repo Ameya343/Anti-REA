@@ -1,0 +1,57 @@
+name: Release
+
+# Build prebuilt antirea-core binaries for common platforms and attach them to
+# the GitHub Release, so users get the fast path without a Rust toolchain.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build/publish (must already exist)"
+        required: true
+
+permissions:
+  contents: write   # needed to create the release and upload assets
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            asset: antirea-core-x86_64-unknown-linux-gnu
+          - os: macos-13
+            asset: antirea-core-x86_64-apple-darwin
+          - os: macos-latest
+            asset: antirea-core-aarch64-apple-darwin
+          - os: windows-latest
+            asset: antirea-core-x86_64-pc-windows-msvc.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          persist-credentials: false
+
+      - name: Build core (cargo is preinstalled on the runner)
+        shell: bash
+        run: cargo build --release --manifest-path core/Cargo.toml
+
+      - name: Stage asset
+        shell: bash
+        run: |
+          src=core/target/release/antirea-core
+          [ -f "$src.exe" ] && src="$src.exe"
+          cp "$src" "${{ matrix.asset }}"
+
+      - name: Publish to release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME:-${{ github.event.inputs.tag }}}"
+          gh release create "$tag" --title "$tag" --generate-notes \
+            --repo "$GITHUB_REPOSITORY" 2>/dev/null || true
+          gh release upload "$tag" "${{ matrix.asset }}" \
+            --clobber --repo "$GITHUB_REPOSITORY"
