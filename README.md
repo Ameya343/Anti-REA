@@ -8,8 +8,8 @@ AI-assisted kind.*
 
 Anti-REA measures how much your shipped code gives away to a reverse engineer,
 strips the signals it can safely strip, and generates correct hardening configs
-for the toolchains it can't run itself. It also ships as an **AI skill/plugin**
-so an agent (e.g. Claude Code) can harden a project — including apps the AI just
+for the toolchains it can't run itself. It also ships as an **AI agent skill**
+so a coding agent can harden a project — including apps the AI just
 generated — before you ship.
 
 > ### The one thing to be honest about
@@ -140,18 +140,18 @@ obfuscator (configs provided), and an endpoint inside a Python f-string survives
 (f-string parts aren't encoded) — which is exactly why endpoints and secrets
 belong server-side, not just obfuscated.
 
-## Use it as an AI skill / plugin
+## Use it as an AI agent skill
 
-This repo is a Claude Code plugin (`.claude-plugin/plugin.json` +
-`skills/anti-rea/`). Point your agent at it and ask it to "harden this app
-against reverse engineering." The skill tells the agent to scan, triage secrets,
-harden, generate platform configs, and prove the reduction — while stating the
-honest limits and keeping trusted logic server-side.
+The repo ships a portable agent skill in `skills/anti-rea/`. Point your coding
+agent at it and ask it to "harden this app against reverse engineering." The
+skill tells the agent to scan, triage secrets, harden, generate platform
+configs, and prove the reduction — while stating the honest limits and keeping
+trusted logic server-side.
 
-- **Claude Code plugin:** add this directory as a plugin, or copy
-  `skills/anti-rea/` into `.claude/skills/`.
-- **Other agents:** the skill is a portable `SKILL.md` + `references/*.md` that
-  drives the `antirea` CLI.
+It is a plain `SKILL.md` + `references/*.md` that drives the `antirea` CLI, so
+it works with any agent that can read instructions and run commands. Agents
+that auto-discover skills from a directory can load `skills/anti-rea/`
+directly.
 
 ## Validate with your own tooling (optional)
 
