@@ -2,6 +2,8 @@ name: Release
 
 # Build prebuilt antirea-core binaries for common platforms and attach them to
 # the GitHub Release, so users get the fast path without a Rust toolchain.
+# The macOS x86_64 binary is cross-compiled on the arm64 runner (via an added
+# Rust target) rather than on a scarce macos-13 Intel runner.
 on:
   push:
     tags: ["v*"]
@@ -21,12 +23,16 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
             asset: antirea-core-x86_64-unknown-linux-gnu
-          - os: macos-13
-            asset: antirea-core-x86_64-apple-darwin
           - os: macos-latest
+            target: aarch64-apple-darwin
             asset: antirea-core-aarch64-apple-darwin
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            asset: antirea-core-x86_64-apple-darwin
           - os: windows-latest
+            target: x86_64-pc-windows-msvc
             asset: antirea-core-x86_64-pc-windows-msvc.exe
     runs-on: ${{ matrix.os }}
     steps:
@@ -34,14 +40,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Build core (cargo is preinstalled on the runner)
+      - name: Add Rust target (no-op for native targets)
         shell: bash
-        run: cargo build --release --manifest-path core/Cargo.toml
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Build core
+        shell: bash
+        run: cargo build --release --manifest-path core/Cargo.toml --target ${{ matrix.target }}
 
       - name: Stage asset
         shell: bash
         run: |
-          src=core/target/release/antirea-core
+          src=core/target/${{ matrix.target }}/release/antirea-core
           [ -f "$src.exe" ] && src="$src.exe"
           cp "$src" "${{ matrix.asset }}"
 
