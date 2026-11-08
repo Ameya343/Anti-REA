@@ -17,7 +17,11 @@ from .analyzers.signals import FileSignals
 
 
 def core_binary() -> str | None:
-    """Locate the antirea-core binary, or None if it isn't built/installed."""
+    """Locate the antirea-core binary, or None if it isn't built/installed.
+
+    Order: $ANTIREA_CORE, a local release build, the downloaded cache
+    (`antirea install-core`), then PATH.
+    """
     env = os.environ.get("ANTIREA_CORE")
     if env and os.path.exists(env):
         return env
@@ -26,6 +30,10 @@ def core_binary() -> str | None:
     cand = os.path.join(root, "core", "target", "release", exe)
     if os.path.exists(cand):
         return cand
+    from . import coreinstall
+    cached = coreinstall.installed_path()
+    if os.path.exists(cached):
+        return cached
     return shutil.which("antirea-core")
 
 

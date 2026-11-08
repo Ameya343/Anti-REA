@@ -151,6 +151,18 @@ def _cmd_test_rea(args) -> int:
     return 0
 
 
+def _cmd_install_core(args) -> int:
+    from . import coreinstall
+    try:
+        path = coreinstall.install(tag=args.tag)
+    except Exception as exc:  # surface any download / IO error cleanly
+        print(f"antirea: install-core failed: {exc}", file=sys.stderr)
+        return 1
+    print(f"installed antirea-core -> {path}")
+    print("the scanner will use it automatically on the next run.")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="antirea", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -196,6 +208,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--for", dest="for_path",
                     help="auto-detect platforms from this project path")
     sp.set_defaults(func=_cmd_gen_config)
+
+    sp = sub.add_parser("install-core",
+                        help="download a prebuilt Rust core (no toolchain needed)")
+    sp.add_argument("--tag", default="latest", help="release tag (default: latest)")
+    sp.set_defaults(func=_cmd_install_core)
 
     sp = sub.add_parser("test-rea", help="before/after demo vs a simulated REA pass")
     sp.add_argument("path")
