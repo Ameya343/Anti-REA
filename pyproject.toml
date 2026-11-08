@@ -16,7 +16,7 @@ keywords = ["reverse-engineering", "hardening", "obfuscation", "appsec", "rasp"]
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=7", "flake8>=6"]
+dev = ["pytest>=7", "flake8>=7.4.1"]
 
 [project.scripts]
 antirea = "antirea.cli:main"
