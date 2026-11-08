@@ -42,3 +42,13 @@ def test_write_configs_filtered(tmp_path):
 def test_write_all_configs(tmp_path):
     written = configs.write_configs(str(tmp_path))     # None => all
     assert len(written) == len(configs.CONFIGS)
+
+
+def test_generated_json_configs_are_valid_json(tmp_path):
+    """The .json configs must parse (terser/obfuscator reject comments)."""
+    import json
+    configs.write_configs(str(tmp_path), platforms=["web", "electron"])
+    for name in ("terser.config.json", "javascript-obfuscator.json"):
+        p = tmp_path / name
+        assert p.exists(), name
+        json.loads(p.read_text(encoding="utf-8"))  # raises if not valid JSON
