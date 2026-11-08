@@ -45,11 +45,43 @@ unresolved nodes rose 8×.
 
 ![Before/after analysis — silent demo](docs/validation-demo.gif)
 
+### What it recovered
+
+Exact matches in the tool's own evidence output, same tool and command on both
+builds:
+
+| Signal | `original` | `hardened` |
+|---|---:|---:|
+| IPC channel `license:validate` | 6 | **0** |
+| IPC channel `features:unlock` | 6 | **0** |
+| IPC channel `telemetry:event` | 9 | **0** |
+| Endpoint `acme.example.com` | 7 | **0** |
+| Route `v2/license/validate` | 2 | **0** |
+| Gating identifier `allowed` | 7 | **0** |
+| Source comments | recovered | **absent** |
+
+Its own confidence collapsed too — it reported far more it could not resolve:
+
+| Tool's self-assessment | `original` | `hardened` |
+|---|---:|---:|
+| Unresolved (`unknown`) nodes | 86 | **700** |
+| Facts at `exact`/`high` confidence | 37 | 14 |
+| Facts at `unknown` confidence | 12 | **63** |
+
+> Its stated limitation on the hardened build: *"Static paths and relationships
+> may remain unresolved when expressions are dynamic or obfuscated."*
+
 The app under test — a small Electron "Acme Pro" license/feature UI (silent):
 
 ![Acme Pro GUI — silent demo](docs/app-gui-demo.gif)
 
-Full methodology, data tables, and honest caveats: **[docs/validation.md](docs/validation.md)**.
+Full methodology, raw figures, and honest caveats: **[docs/validation.md](docs/validation.md)**.
+
+**Scope, honestly:** this was the tool's *static* pass. Hardening raises cost
+sharply; it is not absolute. The string-array key still ships in the bundle, so
+a determined analyst with a deobfuscator or runtime access recovers more —
+which is why the toolkit also hardens the runtime surface and leads with
+keeping trusted logic server-side.
 
 ## What it does
 
