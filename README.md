@@ -2,8 +2,9 @@
 
 [![CI](https://github.com/Ameya343/Anti-REA/actions/workflows/ci.yml/badge.svg)](https://github.com/Ameya343/Anti-REA/actions/workflows/ci.yml)
 
-**A threat-informed toolkit for hardening your own apps against reverse
-engineering — including AI-assisted RE platforms like REA.**
+***A**nti **R**everse-**E**ngineering & **A**nalysis — a threat-informed toolkit
+for hardening your own apps against reverse engineering, including the
+AI-assisted kind.*
 
 Anti-REA measures how much your shipped code gives away to a reverse engineer,
 strips the signals it can safely strip, and generates correct hardening configs
@@ -20,28 +21,29 @@ generated — before you ship.
 > pricing), it belongs on the server. Client-side hardening protects your IP and
 > slows analysis; it does not make the client trustworthy.
 
-## Why "Anti-REA"
+## Threat model
 
-It is built against a concrete threat model: REA, an AI-assisted
-reverse-engineering platform that decompiles native/Android/JS/Electron targets,
-recovers source from bundles and source maps, observes runtime behavior, and
-uses an LLM to reconstruct features from the signals it harvests. Anti-REA
-targets exactly those signals. See [THREAT_MODEL.md](THREAT_MODEL.md).
+Reverse engineering is increasingly automated. A modern pipeline decompiles
+native/Android/JS/Electron targets, recovers source from bundles and source
+maps, observes runtime behavior, and then uses an LLM to reconstruct an app's
+features from the signals it harvests — readable strings, descriptive
+identifiers, comments, and the API/IPC surface. Anti-REA is built to deny
+exactly those signals. See [THREAT_MODEL.md](THREAT_MODEL.md).
 
 **It is stack-agnostic.** `antirea detect` auto-identifies which platform(s) a
 project is — **web, Electron, Android, iOS, native (C/C++/Rust/Go), and
 Python** — and the toolkit tailors its hardening and generated configs to
 whatever it finds (a project is often several at once).
 
-## Proven against the real REA tool
+## Validated against a real analysis tool
 
-A sample Electron app was hardened with Anti-REA, then the **actual REA
-reverse-engineering tool** (`rea-agents` v6.5.0) was run against the original and
-hardened builds. REA recovered the endpoints, IPC channels, gating logic and
-source comments from the original — and **none** of them from the hardened
-build, while its own count of unresolved nodes rose 8×.
+A sample Electron app was hardened with Anti-REA, then analyzed **before and
+after** with a real off-the-shelf AI-assisted reverse-engineering tool. It
+recovered the endpoints, IPC channels, gating logic and source comments from the
+original — and **none** of them from the hardened build, while its own count of
+unresolved nodes rose 8×.
 
-![Anti-REA vs REA — silent demo](docs/validation-demo.gif)
+![Before/after analysis — silent demo](docs/validation-demo.gif)
 
 The app under test — a small Electron "Acme Pro" license/feature UI (silent):
 
@@ -51,7 +53,7 @@ Full methodology, data tables, and honest caveats: **[docs/validation.md](docs/v
 
 ## What it does
 
-| Signal REA harvests | Anti-REA response |
+| Signal an analysis pipeline harvests | Anti-REA response |
 |---|---|
 | **Source maps** → full original source | strips `sourceMappingURL` refs, never copies `.map` files |
 | **String literals** → "feature trace seeds" + LLM comprehension | encodes Python str/bytes literals to runtime-decoded form; configs for JS string-array obfuscation |
@@ -103,7 +105,7 @@ python -m antirea detect ./my-app
 # 2. Measure what you leak
 python -m antirea scan ./my-app
 
-# 3. See the before/after against a simulated REA pass
+# 3. See the before/after against a simulated analysis pass
 python -m antirea test-rea ./my-app --keep
 
 # 4. Write a hardened copy (source is never modified; dst must be outside src)
@@ -151,11 +153,11 @@ honest limits and keeping trusted logic server-side.
 - **Other agents:** the skill is a portable `SKILL.md` + `references/*.md` that
   drives the `antirea` CLI.
 
-## Validate against real REA (optional, your call)
+## Validate with your own tooling (optional)
 
-`antirea test-rea` prints the exact REA CLI command to analyze the *hardened*
-copy so you can compare REA's recovered evidence before vs after. Anti-REA does
-**not** run REA for you.
+`antirea test-rea` prints a ready-to-run command for analyzing the *hardened*
+copy with an external analysis tool, so you can compare recovered evidence
+before vs after. Anti-REA never runs third-party tooling for you.
 
 ## Develop
 
