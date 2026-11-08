@@ -10,8 +10,6 @@ from __future__ import annotations
 import os
 
 TERSER = """\
-// terser.config.json  --  run: npx terser in.js -c -m --config-file terser.config.json -o out.js
-// Defeats: readable identifiers (module graph), comments (intent), dead-code hints.
 {
   "compress": { "drop_console": true, "drop_debugger": true, "passes": 3,
                 "pure_funcs": ["console.log", "console.debug"] },
@@ -22,10 +20,6 @@ TERSER = """\
 """
 
 JS_OBFUSCATOR = """\
-// javascript-obfuscator.json
-// run: npx javascript-obfuscator in.js --output out.js --config javascript-obfuscator.json
-// Defeats: string trace-seeds (stringArray), control-flow reconstruction,
-//          identifier semantics, and casual AI summarization.
 {
   "compact": true,
   "controlFlowFlattening": true,
@@ -152,6 +146,21 @@ These are starting points, not drop-in guarantees. Tighten -keep rules, insert
 your real SPKI pins and domains, and MEASURE runtime overhead. The decisive
 control is architectural: keep genuinely sensitive logic and secrets on a server
 the client cannot read. See THREAT_MODEL.md.
+
+## How to use each file
+
+- `terser.config.json` (pure JSON): minify + mangle JS.
+    npx terser in.js -c -m --config-file terser.config.json -o out.js
+    Defeats readable identifiers (module graph), comments (intent), dead code.
+
+- `javascript-obfuscator.json` (pure JSON): string-array + control-flow obfuscation.
+    npx javascript-obfuscator in.js --output out.js --config javascript-obfuscator.json
+    Defeats string trace-seeds, control-flow reconstruction, identifier semantics.
+
+- `electron-fuses.js`: run during packaging to disable the inspector & harden fuses.
+- `proguard-rules.pro`: Android R8/ProGuard (reference it from build.gradle).
+- `network_security_config.xml` + `okhttp-pinning.kt`: Android TLS pinning.
+- `apple-hardening.md`, `native-hardening.md`, `python-hardening.md`: platform notes.
 """
 
 APPLE_HARDENING = """\
