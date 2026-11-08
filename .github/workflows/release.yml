@@ -63,7 +63,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="${GITHUB_REF_NAME:-${{ github.event.inputs.tag }}}"
+          # The dispatch input wins. On workflow_dispatch GITHUB_REF_NAME is the
+          # BRANCH (e.g. "main"), so using it first would publish a release
+          # named after the branch instead of the requested tag.
+          tag="${{ github.event.inputs.tag }}"
+          [ -z "$tag" ] && tag="$GITHUB_REF_NAME"
+          # Safety net: only ever publish version tags.
+          case "$tag" in
+            v*) ;;
+            *) echo "refusing to publish a release for non-version ref: $tag" >&2; exit 1 ;;
+          esac
           gh release create "$tag" --title "$tag" --generate-notes \
             --repo "$GITHUB_REPOSITORY" 2>/dev/null || true
           gh release upload "$tag" "${{ matrix.asset }}" \
