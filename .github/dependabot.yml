@@ -1,0 +1,25 @@
+version: 2
+updates:
+  # Keep the SHA-pinned GitHub Actions current (security + maintenance).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+
+  # Rust core crates.
+  - package-ecosystem: "cargo"
+    directory: "/core"
+    schedule:
+      interval: "monthly"
+
+  # Sample app's npm devDependencies (electron, electron-builder).
+  - package-ecosystem: "npm"
+    directory: "/examples/sample-app"
+    schedule:
+      interval: "monthly"
+
+  # Python dev tooling (pytest, flake8).
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "monthly"
